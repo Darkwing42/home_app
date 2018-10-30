@@ -1,0 +1,9 @@
+APP_SETTINGS=development
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=TEST
+POSTGRES_USER=home_user
+POSTGRES_PASSWORD=test2345
+POSTGRES_DB=home
+REDIS_URL=
+BROKER_URL=pyamqp://admin:mypass@rabbit//
