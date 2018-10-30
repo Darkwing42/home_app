@@ -47,3 +47,6 @@ folgt
 <pre><code>
 docker-compose up
 </code></pre>
+## Literatur
+
+https://github.com/timlardner/Docker-FlaskCeleryRabbitRedis
