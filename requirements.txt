@@ -6,5 +6,6 @@ flask-cors
 flask-sqlalchemy
 flask-migrate
 psycopg2-binary
-celery
+celery[redis]
 py-bcrypt
+uwsgi
