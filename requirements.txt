@@ -10,4 +10,4 @@ celery[redis]
 py-bcrypt
 uwsgi
 redis
-flask-JWTExtended
+Flask-JWT-Extended
