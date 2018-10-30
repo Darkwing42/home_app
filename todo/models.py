@@ -2,7 +2,9 @@ from app import db
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from app.cache import CACHE
+from app.utils.uuid_converter import str2uuid
+from user.models import User
+
 
 class Task(db.Model):
 
@@ -73,3 +75,9 @@ class TodoList(db.Model):
     @classmethod
     def get_by_id(cls, id):
         return cls.query.filter_by(todoListID=id).first()
+
+	@classmethod
+	def get_all_by_user(cls, user_id):
+		user = User.find_by_id(user_id)
+		return cls.query.filter_by(user_id=user.userID).all()
+		

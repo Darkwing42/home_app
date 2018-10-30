@@ -17,6 +17,7 @@ services:
     container_name: home-app
     hostname: home-app
     build: .
+    dockerfile: dockerfiles/python_container
     volumes:
       - .:/usr/src/app
     environment:
@@ -41,6 +42,7 @@ services:
 
   worker:
     build: .
+    dockerfile: dockerfiles/python_container
     command: ./scripts/run_celery.sh
     volumes:
       - .:/usr/src/app

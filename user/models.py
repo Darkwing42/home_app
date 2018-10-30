@@ -33,6 +33,7 @@ class User(db.Model):
 	username = db.Column(db.String(120), nullable=False, unique=True)
 	email = db.Column(db.String, unique=True, nullable=False)
 	authenticated = db.Column(db.Boolean, default=False)
+	is_admin = db.Column(db.Boolean, default=False)
 
 	active = db.Column(db.Boolean, default=True)
 
@@ -50,9 +51,33 @@ class User(db.Model):
 		self.email = email
 		self.password = password
 		self.authenticated = False
+	
+	@classmethod
+	def check_is_admin(cls, identity):
+		user = User.get_by_id(identity)
+		if not user:
+			return {'message': 'No user found'}
+		return user.is_admin
 
-
-
+	@classmethod
+	def change_is_admin(cls, user_id):
+		user = User.find_by_id(user_id)
+		if not user:
+			return { 'message': 'User not found'}, 404
+		elif not user.is_admin:
+			return {'message': 'You have not the permission to change this'}, 403
+		user.is_admin = !user.is_admin
+		cls.save()
+		return {'message': '{} is now an administrator'.format(user.username)}, 201
+	
+	@classmethod
+	def change_active(cls, user_id):
+		user = User.find_by_id(user_id)
+		if not user:
+			return { 'message': 'User not found'}, 404
+		user.active = !user.active
+		cls.save()
+		return {'message': '{} changed to {}'.format(user.username, user.active)}, 201
 
 
 	def hash_password(self, password):

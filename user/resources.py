@@ -1,7 +1,12 @@
 from flask_restful import Resource
 from user.models import User
 from app.utils.uuid_converter import str2uuid
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import ( 
+		create_access_token, 
+		create_refresh_token, 
+		jwt_refresh_token_required,
+		get_jwt_identity
+)
 from flask import request
 
 class UserRegisterAPI(Resource):
@@ -18,22 +23,13 @@ class UserRegisterAPI(Resource):
 
 class UserAPI(Resource):
 
-    @classmethod
-    def get(cls, user_id):
+   
+    def get(self, user_id):
         user = User.find_by_id(user_id)
         if not user:
             return {'message': 'User not found'}, 404
         return user.json()
 
-    @classmethod
-    def change_active(cls, user_id):
-        user = User.find_by_id(user_id)
-        if not user:
-            return {'message': 'User not found'}, 404
-        user.active = !user.active
-        user.save()
-
-        return {'message': 'User is inactive'}, 200
 
 class UserLoginAPI(Resource):
 	@classmethod
@@ -52,3 +48,10 @@ class UserLoginAPI(Resource):
 		}, 200
 
 		return {"message": "Invalid credentials"}, 401
+
+class TokenRefreshAPI(Resource):
+	@jwt_refresh_token_required
+	def post(self):
+		current_user = get_jwt_identity()
+		new_token = create_access_token(identity=current_user, fresh=False)
+		return { 'access_token': new_token }, 200	

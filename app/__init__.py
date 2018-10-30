@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from app.settings import API_v1
 from app.config import app_config
-
+from user.models import User
 
 
 db = SQLAlchemy()
@@ -24,6 +24,14 @@ def create_app(config_name):
 
 	jwt = JWTManager(app) # not creating /auth
 
+	@jwt.user_claims_loader
+	def add_claims_to_jwt(identity):
+		if User.check_is_admin(identity) : #instead of head-coding, you should read from a config or database
+			return { 'is_admin': True }
+		return { 'is_admin': False }
+
+	
+
 
 	#resource import area
 
@@ -36,10 +44,16 @@ def create_app(config_name):
 	api.add_resource(ShoppingListsAPI, API_v1 + '/shoppinglists')
 	api.add_resource(ShoppingListAPI, API_v1 + '/shoppinglist', API_v1 + '/shoppinglist/<string:id>')
 
-	from user.resources import UserRegisterAPI, UserAPI, UserLoginAPI
+	from user.resources import (
+			UserRegisterAPI, 
+			UserAPI, 
+			UserLoginAPI,
+			TokenRefreshAPI
+	)
 	api.add_resource(UserRegisterAPI, API_v1 + '/register')
 	api.add_resource(UserAPI, API_v1 + '/user/<string:id>')
-	api.add_resource(UserLoginAPI, API_v1 + '/login
+	api.add_resource(UserLoginAPI, API_v1 + '/login')
+	api.add_resource(TokenRefreshAPI, API_v1 + '/refresh')
 
 
 	db.init_app(app)
