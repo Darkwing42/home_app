@@ -3,6 +3,7 @@ from flask_restful import Resource
 from todo.models import TodoList, Task
 from app import db
 
+
 class TodoListsApi(Resource):
     def get(self):
         todo = TodoList.get_all()

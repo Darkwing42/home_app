@@ -43,6 +43,7 @@ class ShoppinglistModel(db.Model):
 	shoppinglist_name = db.Column(db.String(120))
 	shoppinglist_done = db.Column(db.Boolean, default=False)
 	shoppingItems = db.relationship('ShoppingItemModel', backref='ShoppinglistModel', lazy=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.userID'))
 
 	def __init__(self, name, done):
 		self.shoppinglist_name = name

@@ -36,6 +36,10 @@ class User(db.Model):
 	_password = db.Column(db.String(255), nullable=False)
 	
 	settings = db.relationship('UserSettings', backref='User', lazy=False)
+
+	todolists = db.relationship('TodolistModel', backref='User', lazy=False)
+	shoppinglists = db.relationship('ShoppinglistModel', backref='User', lazy=False)
+	
 	haushalt_id = db.Column(db.Integer, db.ForeignKey('haushalt.haushaltID'))
 
 	def __init__(self, username, email, password):

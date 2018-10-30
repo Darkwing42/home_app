@@ -9,3 +9,4 @@ psycopg2-binary
 celery[redis]
 py-bcrypt
 uwsgi
+redis

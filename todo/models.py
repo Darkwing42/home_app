@@ -2,6 +2,7 @@ from app import db
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from app.cache import CACHE
 
 class Task(db.Model):
 
@@ -26,6 +27,7 @@ class Task(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+		
 
     def delete(self):
         db.session.delete(self)
@@ -41,6 +43,7 @@ class TodoList(db.Model):
     todoList_name = db.Column(db.String(200))
     todoList_done = db.Column(db.Boolean, default=False)
     tasks = db.relationship('Task', backref='todoList', lazy=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.userID'))
 
     def __init__(self,todoList_name, todoList_done):
         self.todoList_name = todoList_name
