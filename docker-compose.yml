@@ -3,19 +3,19 @@ version: '3'
 services:
   redis:
     image: redis:latest
-	hostname: redis
+    hostname: redis
 
   rabbit:
     image: rabbitmq:latest
-	hostname: rabbit
-	evironment:
-	  - RABBITMQ_DEFAULT_USER=admin
-	  - RABBITMQ_DEFAULT_PW=test2345
+    hostname: rabbit
+    evironment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PW=test2345
 	  
   home-app:
     restart: always
     container_name: home-app
-	hostname: home-app
+    hostname: home-app
     build: .
     volumes:
       - .:/usr/src/app
@@ -39,14 +39,14 @@ services:
   
   worker:
     build: .
-	command: ./scripts/run_celery.sh
-	volumes:
-	  - .:/usr/src/app
-	links:
-	  - rabbit
-	  - redis
-	depends_on:
-	  - rabbit
+    command: ./scripts/run_celery.sh
+    volumes:
+      - .:/usr/src/app
+    links:
+      - rabbit
+      - redis
+    depends_on:
+      - rabbit
   
   db:
     restart: always
