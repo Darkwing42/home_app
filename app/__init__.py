@@ -36,9 +36,10 @@ def create_app(config_name):
 	api.add_resource(ShoppingListsAPI, API_v1 + '/shoppinglists')
 	api.add_resource(ShoppingListAPI, API_v1 + '/shoppinglist', API_v1 + '/shoppinglist/<string:id>')
 
-	from user.resources import UserRegisterAPI, UserAPI
+	from user.resources import UserRegisterAPI, UserAPI, UserLoginAPI
 	api.add_resource(UserRegisterAPI, API_v1 + '/register')
 	api.add_resource(UserAPI, API_v1 + '/user/<string:id>')
+	api.add_resource(UserLoginAPI, API_v1 + '/login
 
 
 	db.init_app(app)
