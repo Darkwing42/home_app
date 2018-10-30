@@ -2,6 +2,7 @@ from app import db
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 import bcrypt
+from app.utils.uuid_converter import str2uuid
 
 class UserSettings(db.Model):
 	__tablename__ =  'usersettings'
@@ -9,11 +10,11 @@ class UserSettings(db.Model):
 	userSettingsID = db.Column(db.Integer, primary_key=True)
 	id = db.Column(UUID(as_uuid=True, default=lambda: uuid.uuid4().hex), unique=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.userID'))
-	
+
 	weather_service = db.Column(db.Boolean, default=False)
 	todo_service = db.Column(db.Boolean, default=False)
 	shopping_service = db.Column(db.Boolean, default=False)
-	
+
 	def json(self):
 		return {
 	"id": str(self.id),
@@ -21,7 +22,7 @@ class UserSettings(db.Model):
 	"todo_service": self.todo_service,
 	"shopping_service": self.shopping_service
 	}
-	
+
 
 
 class User(db.Model):
@@ -33,13 +34,15 @@ class User(db.Model):
 	email = db.Column(db.String, unique=True, nullable=False)
 	authenticated = db.Column(db.Boolean, default=False)
 
+	active = db.Column(db.Boolean, default=True)
+
 	_password = db.Column(db.String(255), nullable=False)
-	
+
 	settings = db.relationship('UserSettings', backref='User', lazy=False)
 
 	todolists = db.relationship('TodolistModel', backref='User', lazy=False)
 	shoppinglists = db.relationship('ShoppinglistModel', backref='User', lazy=False)
-	
+
 	haushalt_id = db.Column(db.Integer, db.ForeignKey('haushalt.haushaltID'))
 
 	def __init__(self, username, email, password):
@@ -47,15 +50,20 @@ class User(db.Model):
 		self.email = email
 		self.password = password
 		self.authenticated = False
-	
-	
 
-			
+
+
+
 	def hash_password(self, password):
 		return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
-	
+
 	def check_password(self, password, hashed_pw):
 		return bcrypt.checkpw(password, hashed_pw)
 
+	@classmethod
+	def find_by_id(cls, id):
+		return User.query.filter_by(id=lambda: str2uuid(id)).first()
 
-	
+	def save():
+		db.session.add(self)
+		db.session.commit()
