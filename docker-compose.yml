@@ -11,7 +11,7 @@ services:
     evironment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PW=test2345
-	  
+  
   home-app:
     restart: always
     container_name: home-app
