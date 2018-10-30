@@ -51,5 +51,5 @@ folgt
 docker-compose up
 </code></pre>
 ## Literatur
-
+https://www.georg-ledermann.de/blog/
 https://github.com/timlardner/Docker-FlaskCeleryRabbitRedis
