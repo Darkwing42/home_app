@@ -54,6 +54,7 @@ class User(db.Model):
 
 
 
+
 	def hash_password(self, password):
 		return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
 
@@ -64,6 +65,18 @@ class User(db.Model):
 	def find_by_id(cls, id):
 		return User.query.filter_by(id=lambda: str2uuid(id)).first()
 
+	@classmethod
+	def find_by_username(cls, username):
+		return User.query.filter_by(username=username).first()
+
 	def save():
 		db.session.add(self)
 		db.session.commit()
+
+	def json(self):
+		return {
+		'id': str(self.id),
+		'username': self.username',
+		'settings': [ setting.json() for settion in self.settings ]
+
+		}
