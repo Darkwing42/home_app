@@ -19,6 +19,9 @@
   POSTGRES_USER=
   POSTGRES_PASSWORD=
   POSTGRES_DB=
+  REDIS_URL=
+  BROKER_URL=
+
   
 </code></pre>
 

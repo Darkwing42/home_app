@@ -30,11 +30,19 @@ class User(db.Model):
 	userID = db.Column(db.Integer, primary_key=True)
 	id = db.Column(UUID(as_uuid=True, default=lambda: uuid.uuid4().hex), unique=True)
 	username = db.Column(db.String(120), nullable=False, unique=True)
+	email = db.Column(db.String, unique=True, nullable=False)
+	authenticated = db.Column(db.Boolean, default=False)
 
 	_password = db.Column(db.String(255), nullable=False)
 	
 	settings = db.relationship('UserSettings', backref='User', lazy=False)
-	haushalt_id = db.Column(db.Integer, db.ForeignKey('haushalt.haushaltID')
+	haushalt_id = db.Column(db.Integer, db.ForeignKey('haushalt.haushaltID'))
+
+	def __init__(self, username, email, password):
+		self.username = username
+		self.email = email
+		self.password = password
+		self.authenticated = False
 	
 	
 
