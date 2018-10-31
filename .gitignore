@@ -5,6 +5,7 @@ __pycache__/
 *.db
 # C extensions
 *.so
+data/
 
 migrations/
 *.db

@@ -4,11 +4,16 @@ from sqlalchemy.dialects.postgresql import UUID
 import bcrypt
 from app.utils.uuid_converter import str2uuid
 
+from finanzen.models import *
+from todo.models import *
+from shopping.models import *
+
+
 class UserSettings(db.Model):
 	__tablename__ =  'usersettings'
 
 	userSettingsID = db.Column(db.Integer, primary_key=True)
-	id = db.Column(UUID(as_uuid=True, default=lambda: uuid.uuid4().hex), unique=True)
+	id = db.Column(UUID(as_uuid=True), default=lambda: uuid.uuid4(), unique=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.userID'))
 
 	weather_service = db.Column(db.Boolean, default=False)
@@ -29,7 +34,7 @@ class User(db.Model):
 	__tablename__ = 'users'
 
 	userID = db.Column(db.Integer, primary_key=True)
-	id = db.Column(UUID(as_uuid=True, default=lambda: uuid.uuid4().hex), unique=True)
+	id = db.Column(UUID(as_uuid=True), default=lambda: uuid.uuid4(), unique=True)
 	username = db.Column(db.String(120), nullable=False, unique=True)
 	email = db.Column(db.String, unique=True, nullable=False)
 	authenticated = db.Column(db.Boolean, default=False)
@@ -41,7 +46,7 @@ class User(db.Model):
 
 	settings = db.relationship('UserSettings', backref='User', lazy=False)
 
-	todolists = db.relationship('TodolistModel', backref='User', lazy=False)
+	todolists = db.relationship('TodoList', backref='User', lazy=False)
 	shoppinglists = db.relationship('ShoppinglistModel', backref='User', lazy=False)
 
 	haushalt_id = db.Column(db.Integer, db.ForeignKey('haushalt.haushaltID'))
@@ -51,7 +56,7 @@ class User(db.Model):
 		self.email = email
 		self.password = password
 		self.authenticated = False
-	
+
 	@classmethod
 	def check_is_admin(cls, identity):
 		user = User.get_by_id(identity)
@@ -66,16 +71,16 @@ class User(db.Model):
 			return { 'message': 'User not found'}, 404
 		elif not user.is_admin:
 			return {'message': 'You have not the permission to change this'}, 403
-		user.is_admin = !user.is_admin
+		user.is_admin = not user.is_admin
 		cls.save()
 		return {'message': '{} is now an administrator'.format(user.username)}, 201
-	
+
 	@classmethod
 	def change_active(cls, user_id):
 		user = User.find_by_id(user_id)
 		if not user:
 			return { 'message': 'User not found'}, 404
-		user.active = !user.active
+		user.active = not user.active
 		cls.save()
 		return {'message': '{} changed to {}'.format(user.username, user.active)}, 201
 
@@ -101,7 +106,6 @@ class User(db.Model):
 	def json(self):
 		return {
 		'id': str(self.id),
-		'username': self.username',
+		'username': self.username,
 		'settings': [ setting.json() for settion in self.settings ]
-
 		}

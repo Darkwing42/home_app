@@ -1,8 +1,8 @@
 FROM python:3.7
 
-WORKDIR /usr/src/home-test
+WORKDIR /usr/src/home_app
 
-COPY . /usr/src/home-test
+COPY . /usr/src/home_app
 
 EXPOSE 5000
 

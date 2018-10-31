@@ -1,25 +1,23 @@
 version: '3'
 
 services:
-  #redis:
-    #image: redis:latest
-    #hostname: redis
+  redis:
+    image: redis:latest
+    hostname: redis
 
   rabbit:
     image: rabbitmq:latest
     hostname: rabbit
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PW=test2345
+      - RABBITMQ_DEFAULT_USER=home_user
+      - RABBITMQ_DEFAULT_PASS=test2345
 
-  home-app:
+  home_app:
     restart: always
-    container_name: home-app
-    hostname: home-app
+    container_name: home_app
     build: .
-    dockerfile: dockerfiles/python_container
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/home_app
     environment:
     - APP_SETTINGS=${APP_SETTINGS}
     - FLASK_APP=${FLASK_APP}
@@ -28,29 +26,42 @@ services:
     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     - POSTGRES_DB=${POSTGRES_DB}
     - SECRET_KEY=${SECRET_KEY}
-    #- REDIS_URL=${REDIS_URL}
+    - REDIS_URL=${REDIS_URL}
     - BROKER_URL=${BROKER_URL}
 
     ports:
-      - '5001:5000'
+      - '5000:5000'
     links:
-      #- redis
+      - redis
       - rabbit
       - db
     depends_on:
       - db
 
   worker:
-    build: .
-    dockerfile: dockerfiles/python_container
-    command: ./scripts/run_celery.sh
-    volumes:
-      - .:/usr/src/app
+    restart: always
+    build:
+      context: ./tasks
+      dockerfile: Dockerfile
+
     links:
       - rabbit
-      #- redis
+      - redis
     depends_on:
       - rabbit
+      - home_app
+
+  monitor:
+    build:
+      context: ./tasks
+      dockerfile: Dockerfile
+    ports:
+      - '5555:5555'
+    entrypoint: flower
+    command:  -A tasks --port=5555 --broker=amqp://home_user:test2345@rabbit//
+    depends_on:
+      - rabbit
+      - redis
 
   db:
     restart: always
