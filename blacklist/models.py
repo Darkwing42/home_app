@@ -17,5 +17,9 @@ class TokenBlacklist(db.Model):
         db.session.commit()
 
     @classmethod
+    def get_all(cls):
+        return cls.query.all()
+
+    @classmethod
     def get_jti(cls):
         return cls.query.filter_by(jti=jti).all()

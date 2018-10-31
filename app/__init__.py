@@ -8,6 +8,7 @@ from flask_jwt_extended import JWTManager
 
 
 
+
 db = SQLAlchemy()
 
 def create_app(config_name):
@@ -24,22 +25,27 @@ def create_app(config_name):
 	app.config['JWT_BLACKLIST_ENABLED'] = True
 	app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
-
 	jwt = JWTManager(app) # not creating /auth
 
+
+	"""
 	@jwt.user_claims_loader
 	def add_claims_to_jwt(identity):
-		if User.check_is_admin(identity) : #instead of head-coding, you should read from a config or database
+		from user.models import User
+		if identity == 1 : #instead of hard-coding, you should read from a config or database
 			return { 'is_admin': True }
 		return { 'is_admin': False }
-
+		"""
 	@jwt.token_in_blacklist_loader
 	def check_if_token_in_blacklist(decrypted_token):
+		from user.models import User
 		from blacklist.models import TokenBlacklist
-		return decrypted_token['jti'] in TokenBlacklist.get_jti()
+
+		return decrypted_token['jti'] in TokenBlacklist.get_all()
 
 	@jwt.expired_token_loader
 	def expired_token_callback():
+		from user.models import User
 		return jsonify({
 		'description': 'The token has expired',
 		'error': 'token_expired'
@@ -47,6 +53,7 @@ def create_app(config_name):
 
 	@jwt.invalid_token_loader
 	def invalid_token_callback(error):
+		from user.models import User
 		return jsonify({
 		'description': 'Signature verification failed.',
 		'error': 'invalid_token'
@@ -54,6 +61,7 @@ def create_app(config_name):
 
 	@jwt.unauthorized_loader
 	def missing_token_callback(error):
+		from user.models import User
 		return jsonify({
 		'description': 'Request does not contain an access token.',
 		'error': 'authorization_required'
@@ -61,6 +69,7 @@ def create_app(config_name):
 
 	@jwt.needs_fresh_token_loader
 	def token_not_fresh_callback():
+		from user.models import User
 		return jsonify({
         'description': 'The token is not fresh.',
         'error': 'fresh_token_required'
@@ -69,6 +78,7 @@ def create_app(config_name):
 
 	@jwt.revoked_token_loader
 	def revoked_token_callback():
+		from user.models import User
 		return jsonify({
         'description': 'The token has been revoked.',
         'error': 'token_revoked'

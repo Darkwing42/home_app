@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 )
 from flask import request
 from blacklist.models import TokenBlacklist
+import bcrypt
 
 class UserRegisterAPI(Resource):
     def post(self):
@@ -42,10 +43,10 @@ class UserLoginAPI(Resource):
 		data = request.get_json()
 		#find user in the database
 		user = User.find_by_username(data['username'])
-		#check password
-		if user and User.check_password(data['password'], user.password):
-			access_token = create_access_token(identity=user.id, fresh=True)
-			refresh_token = create_refresh_token(identity=user.id)
+        #check password
+		if user and user.check_password(data['password'], user._password):
+			access_token = create_access_token(identity=str(user.id), fresh=True)
+			refresh_token = create_refresh_token(identity=str(user.id))
 			return {
 				'access_token': access_token,
 				'refresh_token': refresh_token

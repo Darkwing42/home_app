@@ -36,13 +36,13 @@ class User(db.Model):
 	userID = db.Column(db.Integer, primary_key=True)
 	id = db.Column(UUID(as_uuid=True), default=lambda: uuid.uuid4(), unique=True)
 	username = db.Column(db.String(120), nullable=False, unique=True)
-	email = db.Column(db.String, unique=True, nullable=False)
+	email = db.Column(db.String)
 	authenticated = db.Column(db.Boolean, default=False)
-	is_admin = db.Column(db.Boolean, default=False)
+	is_admin = db.Column(db.Boolean, default=True)
 
 	active = db.Column(db.Boolean, default=True)
 
-	_password = db.Column(db.String(255), nullable=False)
+	_password = db.Column(db.Binary(60), nullable=False)
 
 	settings = db.relationship('UserSettings', backref='User', lazy=False)
 
@@ -51,15 +51,14 @@ class User(db.Model):
 
 	haushalt_id = db.Column(db.Integer, db.ForeignKey('haushalt.haushaltID'))
 
-	def __init__(self, username, email, password):
+	def __init__(self, username, password):
 		self.username = username
-		self.email = email
-		self.password = password
+		self._password = self.hash_password(password).encode('utf-8')
 		self.authenticated = False
 
 	@classmethod
 	def check_is_admin(cls, identity):
-		user = User.get_by_id(identity)
+		user = User.find_by_id(identity)
 		if not user:
 			return {'message': 'No user found'}
 		return user.is_admin
@@ -86,20 +85,21 @@ class User(db.Model):
 
 
 	def hash_password(self, password):
-		return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
+		return bcrypt.hashpw(password, bcrypt.gensalt(12))
+
 
 	def check_password(self, password, hashed_pw):
 		return bcrypt.checkpw(password, hashed_pw)
 
 	@classmethod
 	def find_by_id(cls, id):
-		return User.query.filter_by(id=lambda: str2uuid(id)).first()
+		return User.query.filter_by(id=(str2uuid(id))).first()
 
 	@classmethod
 	def find_by_username(cls, username):
 		return User.query.filter_by(username=username).first()
 
-	def save():
+	def save(self):
 		db.session.add(self)
 		db.session.commit()
 

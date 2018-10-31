@@ -2,20 +2,23 @@ from flask import request
 from flask_restful import Resource
 from todo.models import TodoList, Task
 from app import db
-
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from user.models import User
 
 class TodoListsApi(Resource):
+    @jwt_required
     def get(self):
-        todo = TodoList.get_all()
+        user = User.find_by_id(get_jwt_identity())
+        todo = TodoList.query.filter_by(user_id=user.userID).all()
 
         return {'todoLists': [t.to_dict() for t in todo] }, 201
 
 
 class TodoListApi(Resource):
-    def get(self, id):
-        todoList = TodoList.get_by_id(id)
 
-        return {'todoList': todoList.to_dict() }, 201
+    @jwt_required
+    def get(self, id):
+        pass
 
     def post(self):
         data = request.get_json()
