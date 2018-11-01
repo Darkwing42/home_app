@@ -4,6 +4,8 @@ from todo.models import TodoList, Task
 from app import db
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from user.models import User
+from sqlalchemy import and_
+from app.utils.uuid_converter import str2uuid
 
 class TodoListsApi(Resource):
     @jwt_required
@@ -17,11 +19,25 @@ class TodoListsApi(Resource):
 class TodoListApi(Resource):
 
     @jwt_required
-    def get(self, id):
-        pass
+    def get(self, list_id):
+        user = User.find_by_id(get_jwt_identity())
+        todo = TodoList.query.filter(and_(TodoList.id == list_id, TodoList.user_id == user.userID)).first()
 
+        if todo is None:
+            return {'message': 'No Todolist found'}, 404
+        
+        return {'todoList': todo.to_dict() }, 201
+
+
+
+        
+
+    @jwt_required
     def post(self):
         data = request.get_json()
+
+        user = User.find_by_id(get_jwt_identity())
+
 
         task_lst = []
         for task in data['tasks']:
@@ -34,6 +50,7 @@ class TodoListApi(Resource):
         todoList = TodoList(
             todoList_name=data['todoList_name'],
             todoList_done=data['todoList_done'],
+            user_id=user.userID
         )
         todoList.tasks = task_lst
 
@@ -41,10 +58,13 @@ class TodoListApi(Resource):
 
         return {'message': 'Successfully saved new data'}, 201
 
-    def put(self, id):
+    @jwt_required
+    def put(self, list_id):
         data = request.get_json()
 
-        todoList = TodoList.get_by_id(id)
+        user = User.find_by_id(get_jwt_identity())
+
+        todoList = TodoList.query.filter(and_(TodoList.id == list_id, TodoList.user_id == user.userID)).first()
 
         if todoList is None:
             task_lst = []
@@ -58,6 +78,7 @@ class TodoListApi(Resource):
             todoList = TodoList(
                 todoList_name=data['todoList_name'],
                 todoList_done=data['todoList_done'],
+                user_id=user.userID
             )
             todoList.tasks = task_lst
 
@@ -68,10 +89,17 @@ class TodoListApi(Resource):
             todoList.todoList_name = data['todoList_name']
             todoList.todoList_done = data['todoList_done']
             for t in data['tasks']:
-                task = Task.query.get(t['taskID'])
-                task.task_name = t['task_name']
-                task.task_done = t['task_done']
+                if t['id'] is "":
+                    task = Task(
+                        task_name=t['task_name'],
+                        task_done=t['task_done']
+                    )
+                    todoList.tasks.append(task)
+                else:
+                    task = Task.get_by_id(t['id'])
+                    task.task_name = t['task_name']
+                    task.task_done = t['task_done']
 
 
             todoList.save()
-            return {'message': 'Updated data with '}
+            return {'message': 'Updated data'}
