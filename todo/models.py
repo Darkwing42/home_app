@@ -36,6 +36,10 @@ class Task(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+    
+    @classmethod
+    def get_by_id(cls, list_id):
+        return cls.query.filter_by(id=(str2uuid(list_id))).first()
 
 
 
@@ -49,9 +53,10 @@ class TodoList(db.Model):
     tasks = db.relationship('Task', backref='todoList', lazy=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.userID'))
 
-    def __init__(self,todoList_name, todoList_done):
+    def __init__(self,todoList_name, todoList_done, user_id):
         self.todoList_name = todoList_name
         self.todoList_done = todoList_done
+        self.user_id = user_id
 
     def to_dict(self):
         return dict(
