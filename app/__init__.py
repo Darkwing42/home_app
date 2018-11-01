@@ -28,14 +28,16 @@ def create_app(config_name):
 	jwt = JWTManager(app) # not creating /auth
 
 
-	"""
+	
 	@jwt.user_claims_loader
 	def add_claims_to_jwt(identity):
 		from user.models import User
-		if identity == 1 : #instead of hard-coding, you should read from a config or database
+		#TODO: change condition to check if user is admin
+		if identity == 1 : #instead of hard-coding, read from a config or database
 			return { 'is_admin': True }
 		return { 'is_admin': False }
-		"""
+		
+		
 	@jwt.token_in_blacklist_loader
 	def check_if_token_in_blacklist(decrypted_token):
 		from user.models import User
@@ -91,7 +93,7 @@ def create_app(config_name):
 
 	from todo.resources import TodoListsApi, TodoListApi
 	api.add_resource(TodoListsApi, API_v1 + '/todolists')
-	api.add_resource(TodoListApi, API_v1 + '/todolist', API_v1 + '/todolist/<string:id>')
+	api.add_resource(TodoListApi, API_v1 + '/todolist', API_v1 + '/todolist/<string:list_id>')
 
 	from shopping.resources import ShoppingListsAPI, ShoppingListAPI
 	api.add_resource(ShoppingListsAPI, API_v1 + '/shoppinglists')
