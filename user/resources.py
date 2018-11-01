@@ -19,11 +19,17 @@ class UserRegisterAPI(Resource):
 
         if User.find_by_username(data['username']):
             return {'message': "A user with this username already exists"}, 400
-
-        user = User(**data)
-        user.save()
-
-        return {"message": "User created successfully"}, 201
+		
+        if not User.query.all() :
+            user = User(**data)
+            user.is_admin = True
+            user.save()
+            return {"message": "Admin successfully created"}, 201
+        else:
+            user = User(**data)
+            user.is_admin = False
+            user.save()
+            return {'message': "User successfully created"}, 201
 
 class UserAPI(Resource):
 
