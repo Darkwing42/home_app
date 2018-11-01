@@ -11,7 +11,7 @@ class TodoListsApi(Resource):
     @jwt_required
     def get(self):
         user = User.find_by_id(get_jwt_identity())
-        todo = TodoList.query.filter_by(user_id=user.userID).all()
+        todo = TodoList.query.filter_by(user_id=user.userID).all() #change to class method
 
         return {'todoLists': [t.to_dict() for t in todo] }, 201
 

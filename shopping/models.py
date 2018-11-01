@@ -1,16 +1,18 @@
 from app import db
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from app.utils.uuid_converter import str2uuid
+
 
 class ShoppingItemModel(db.Model):
 	__tablename__ = 'shoppingItems'
 
 	id = db.Column(UUID(as_uuid=True), default=lambda: uuid.uuid4().hex)
-	internal_id = db.Column(db.Integer, primary_key=True)
+	shoppingItemID = db.Column(db.Integer, primary_key=True)
 	shoppingItem_name = db.Column(db.String(200))
 	shoppingItem_quantity = db.Column(db.Integer)
 	shoppingItem_done = db.Column(db.Boolean, default=False)
-	shoppingList_id = db.Column(db.Integer, db.ForeignKey('shoppinglists.internal_id'))
+	shoppingList_id = db.Column(db.Integer, db.ForeignKey('shoppinglists.shoppinglistID'))
 
 	def __init__(self, name, quantity):
 		self.shoppingItem_name = name
@@ -33,21 +35,23 @@ class ShoppingItemModel(db.Model):
 	def delete(self):
 		db.session.delete(self)
 		db.session.commit()
+	
 
 
 class ShoppinglistModel(db.Model):
 	__tablename__ = 'shoppinglists'
 
 	id = db.Column(UUID(as_uuid=True), default=lambda: uuid.uuid4().hex)
-	internal_id = db.Column(db.Integer, primary_key=True)
+	shoppinglistID = db.Column(db.Integer, primary_key=True)
 	shoppinglist_name = db.Column(db.String(120))
 	shoppinglist_done = db.Column(db.Boolean, default=False)
 	shoppingItems = db.relationship('ShoppingItemModel', backref='ShoppinglistModel', lazy=False)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.userID'))
 
-	def __init__(self, name, done):
+	def __init__(self, name, done, user_id):
 		self.shoppinglist_name = name
 		self.shoppinglist_done = done
+		self.user_id = user_id
 
 
 	def json(self):
@@ -73,3 +77,7 @@ class ShoppinglistModel(db.Model):
 	@classmethod
 	def get_by_id(cls, id):
 		return cls.query.filter_by(id=id).first()
+	
+	@classmethod
+	def get_all_by_user(cls, user_id):
+		return cls.query.filter_by(user_id=user_id).all()
