@@ -97,7 +97,7 @@ def create_app(config_name):
 
 	from shopping.resources import ShoppingListsAPI, ShoppingListAPI
 	api.add_resource(ShoppingListsAPI, API_v1 + '/shoppinglists')
-	api.add_resource(ShoppingListAPI, API_v1 + '/shoppinglist', API_v1 + '/shoppinglist/<string:id>')
+	api.add_resource(ShoppingListAPI, API_v1 + '/shoppinglist', API_v1 + '/shoppinglist/<string:list_id>')
 
 	from user.resources import (
 			UserRegisterAPI,

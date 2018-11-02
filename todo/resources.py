@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 from todo.models import TodoList, Task
 from app import db
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, fresh_jwt_required	
 from user.models import User
 from sqlalchemy import and_
 from app.utils.uuid_converter import str2uuid
@@ -32,7 +32,7 @@ class TodoListApi(Resource):
 
         
 
-    @jwt_required
+    @fresh_jwt_required	
     def post(self):
         data = request.get_json()
 
@@ -58,7 +58,7 @@ class TodoListApi(Resource):
 
         return {'message': 'Successfully saved new data'}, 201
 
-    @jwt_required
+    @fresh_jwt_required
     def put(self, list_id):
         data = request.get_json()
 
