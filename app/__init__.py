@@ -5,7 +5,7 @@ from flask_restful import Api
 from app.settings import API_v1
 from app.config import app_config
 from flask_jwt_extended import JWTManager
-
+from flask_cors import CORS
 
 
 
@@ -18,7 +18,8 @@ def create_app(config_name):
 
 	app = Flask(__name__)
 	api = Api(app)
-
+	cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+	
 	app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 	app.config.from_object(app_config[config_name])
 	app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
