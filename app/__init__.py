@@ -18,7 +18,7 @@ def create_app(config_name):
 
 	app = Flask(__name__)
 	api = Api(app)
-	cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+	CORS(app, resources={r'/.*': {"origins": '*'}}, allow_headers=['Origin'])
 	
 	app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 	app.config.from_object(app_config[config_name])
@@ -87,7 +87,7 @@ def create_app(config_name):
         'error': 'token_revoked'
     	}), 401
 
-
+	
 
 	#resource import area
 
@@ -113,6 +113,6 @@ def create_app(config_name):
 	api.add_resource(UserLogoutAPI, API_v1 + '/logout')
 	api.add_resource(TokenRefreshAPI, API_v1 + '/refresh')
 
-
+	
 	db.init_app(app)
 	return app

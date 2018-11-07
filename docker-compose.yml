@@ -1,6 +1,20 @@
 version: '3'
 
 services:
+  home_front:
+    container_name: home_front
+    hostname: home_front
+    build:
+      context: ../home_front
+      dockerfile: Dockerfile
+    command: npm run dev
+    volumes: 
+      - ../home_front:/app
+    ports:
+      - 8080:8080
+    links:
+      - home_app
+
   redis:
     image: redis:latest
     hostname: redis
@@ -14,6 +28,7 @@ services:
 
   home_app:
     restart: always
+    hostname: home_app
     container_name: home_app
     build: .
     volumes:
@@ -32,9 +47,10 @@ services:
     ports:
       - '5000:5000'
     links:
+      - db
       - redis
       - rabbit
-      - db
+
     depends_on:
       - db
 
@@ -47,6 +63,7 @@ services:
     links:
       - rabbit
       - redis
+
     depends_on:
       - rabbit
       - home_app

@@ -12,10 +12,13 @@ from flask_jwt_extended import (
 from flask import request
 from blacklist.models import TokenBlacklist
 import bcrypt
+from app.utils import crossdomain
 
 class UserRegisterAPI(Resource):
+	
     def post(self):
         data = request.get_json()
+	
 
         if User.find_by_username(data['username']):
             return {'message': "A user with this username already exists"}, 400
@@ -42,11 +45,12 @@ class UserAPI(Resource):
 
 
 class UserLoginAPI(Resource):
-
+	
 	@classmethod
 	def post(cls):
         #get data
 		data = request.get_json()
+		print(data)
 		#find user in the database
 		user = User.find_by_username(data['username'])
         #check password
@@ -54,11 +58,12 @@ class UserLoginAPI(Resource):
 			access_token = create_access_token(identity=str(user.id), fresh=True)
 			refresh_token = create_refresh_token(identity=str(user.id))
 			return {
+                'user_id': str(user.id),
 				'access_token': access_token,
 				'refresh_token': refresh_token
 				}, 200
 
-		return {"message": "Invalid credentials"}, 401
+		return {"message": "Invalid credentials", "data": data }, 401
 
 class UserLogoutAPI(Resource):
 
